@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: scp-914
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python server.py
+    envVars:
+      - key: DEEPSEEK_API_KEY
+        sync: false

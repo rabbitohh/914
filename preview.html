@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SCP-914 模拟器</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Arial", "Microsoft YaHei", sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(255, 180, 80, 0.08), transparent 35%),
+        linear-gradient(180deg, #1c1f24 0%, #111317 100%);
+      color: #e7dcc3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .panel {
+      width: 100%;
+      max-width: 760px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(0, 0, 0, 0.15)),
+        linear-gradient(135deg, #4e4537, #2e2a24 45%, #1f1c18);
+      border: 2px solid #8c7550;
+      border-radius: 16px;
+      box-shadow:
+        0 0 0 2px rgba(255, 194, 102, 0.08) inset,
+        0 16px 40px rgba(0, 0, 0, 0.45),
+        0 0 30px rgba(255, 170, 60, 0.08);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .panel::before,
+    .panel::after {
+      content: "";
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #c8b08a, #6a583e 65%, #403426);
+      border: 1px solid rgba(0, 0, 0, 0.4);
+      top: 14px;
+      box-shadow: 0 1px 2px rgba(255, 255, 255, 0.08) inset;
+    }
+
+    .panel::before {
+      left: 14px;
+    }
+
+    .panel::after {
+      right: 14px;
+    }
+
+    .header {
+      padding: 26px 28px 18px;
+      border-bottom: 1px solid rgba(214, 175, 104, 0.28);
+      background: linear-gradient(180deg, rgba(255, 210, 120, 0.08), rgba(0, 0, 0, 0.05));
+    }
+
+    .title {
+      margin: 0;
+      text-align: center;
+      font-size: 30px;
+      letter-spacing: 3px;
+      color: #f0d8a8;
+      text-shadow: 0 0 10px rgba(255, 190, 80, 0.18);
+    }
+
+    .subtitle {
+      margin: 10px 0 0;
+      text-align: center;
+      font-size: 13px;
+      color: #bda47a;
+      letter-spacing: 1px;
+    }
+
+    .body {
+      padding: 26px 28px 28px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      gap: 14px;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .label {
+      font-weight: bold;
+      color: #e8d3a7;
+      letter-spacing: 1px;
+    }
+
+    .control,
+    .result-box {
+      width: 100%;
+      border: 1px solid #826a45;
+      border-radius: 10px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(0, 0, 0, 0.12)),
+        #1a1a1a;
+      color: #f3ead7;
+      padding: 12px 14px;
+      font-size: 16px;
+      outline: none;
+      box-shadow:
+        0 0 0 1px rgba(255, 205, 120, 0.05) inset,
+        0 2px 8px rgba(0, 0, 0, 0.25) inset;
+    }
+
+    .control:focus,
+    .result-box:focus {
+      border-color: #c69b59;
+      box-shadow:
+        0 0 0 1px rgba(255, 205, 120, 0.12) inset,
+        0 0 0 3px rgba(198, 155, 89, 0.12);
+    }
+
+    select.control {
+      cursor: pointer;
+    }
+
+    .result-box {
+      min-height: 160px;
+      resize: vertical;
+    }
+
+    .hint {
+      margin: -8px 0 18px 104px;
+      font-size: 12px;
+      line-height: 1.6;
+      color: #bda47a;
+    }
+
+    .btn-wrap {
+      margin-top: 10px;
+    }
+
+    .run-btn {
+      width: 100%;
+      border: 1px solid #b48a45;
+      border-radius: 12px;
+      padding: 14px 18px;
+      font-size: 17px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      color: #2a1f12;
+      cursor: pointer;
+      background:
+        linear-gradient(180deg, #f0cf91 0%, #c99849 48%, #9a6f2f 100%);
+      box-shadow:
+        0 3px 0 #5a3d18,
+        0 8px 20px rgba(0, 0, 0, 0.28),
+        0 1px 0 rgba(255, 255, 255, 0.28) inset;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.15s ease, opacity 0.15s ease;
+    }
+
+    .run-btn:hover {
+      filter: brightness(1.05);
+    }
+
+    .run-btn:active {
+      transform: translateY(3px);
+      box-shadow:
+        0 1px 0 #5a3d18,
+        0 4px 10px rgba(0, 0, 0, 0.25),
+        0 1px 0 rgba(255, 255, 255, 0.2) inset;
+    }
+
+    .run-btn:disabled {
+      cursor: wait;
+      opacity: 0.7;
+      filter: saturate(0.8);
+    }
+
+    .footer-note {
+      margin-top: 14px;
+      text-align: center;
+      font-size: 12px;
+      color: #9e8863;
+      letter-spacing: 1px;
+    }
+
+    @media (max-width: 640px) {
+      .row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      .label {
+        margin-bottom: 2px;
+      }
+
+      .title {
+        font-size: 24px;
+      }
+
+      .body,
+      .header {
+        padding-left: 18px;
+        padding-right: 18px;
+      }
+
+      .hint {
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="panel">
+    <div class="header">
+      <h1 class="title">SCP-914</h1>
+      <p class="subtitle">CLOCKWORK DEVICE SIMULATION PANEL</p>
+    </div>
+
+    <div class="body">
+      <div class="hint">
+        当前页面不再直接填写 API Key。
+        <br />
+        请在后端的 <code>.env</code> 文件中配置 <code>DEEPSEEK_API_KEY</code>。
+      </div>
+
+      <div class="row">
+        <div class="label">输入</div>
+        <input
+          id="inputText"
+          class="control"
+          type="text"
+          placeholder="请输入待处理对象"
+        />
+      </div>
+
+      <div class="row">
+        <div class="label">设定</div>
+        <select id="setting" class="control">
+          <option value="粗加工">粗加工</option>
+          <option value="半粗加工">半粗加工</option>
+          <option value="1:1">1:1</option>
+          <option value="精加工">精加工</option>
+          <option value="超精加工">超精加工</option>
+        </select>
+      </div>
+
+      <div class="row">
+        <div class="label">结果</div>
+        <textarea
+          id="outputText"
+          class="result-box"
+          readonly
+          placeholder="加工结果将显示在这里"
+        ></textarea>
+      </div>
+
+      <div class="btn-wrap">
+        <button id="runBtn" class="run-btn">启动加工</button>
+      </div>
+
+      <div class="footer-note">
+        WARNING: 未经许可请勿投入活体进行测试
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = "/api/transform";
+
+    const inputElement = document.getElementById("inputText");
+    const settingElement = document.getElementById("setting");
+    const outputElement = document.getElementById("outputText");
+    const runButton = document.getElementById("runBtn");
+
+    async function outputFunction(input, setting) {
+      if (!input) {
+        throw new Error("请输入待处理对象。");
+      }
+
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ input, setting })
+      });
+
+      const data = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        const message = data?.error || `请求失败（HTTP ${response.status}）`;
+        throw new Error(message);
+      }
+
+      const content = data?.result?.trim();
+      if (!content) {
+        throw new Error("后端返回成功，但没有拿到文本内容。");
+      }
+
+      return content;
+    }
+
+    async function handleRun() {
+      const input = inputElement.value.trim();
+      const setting = settingElement.value;
+
+      runButton.disabled = true;
+      runButton.textContent = "加工中...";
+      outputElement.value = "SCP-914 正在运转，请稍候...";
+
+      try {
+        const result = await outputFunction(input, setting);
+        outputElement.value = result;
+      } catch (error) {
+        outputElement.value = `请求失败：${error.message}`;
+      } finally {
+        runButton.disabled = false;
+        runButton.textContent = "启动加工";
+      }
+    }
+
+    runButton.addEventListener("click", handleRun);
+
+    inputElement.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        handleRun();
+      }
+    });
+  </script>
+</body>
+</html>
