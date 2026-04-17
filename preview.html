@@ -5,6 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SCP-914 模拟器</title>
   <style>
+    :root {
+      --bg-dark: #0c0f12;
+      --bg-panel: #1a1d20;
+      --bg-panel-2: #23272b;
+      --metal-1: #6f5b3f;
+      --metal-2: #b89967;
+      --metal-3: #e2c48e;
+      --accent: #d39b43;
+      --accent-deep: #8d5e23;
+      --text-main: #eadab8;
+      --text-dim: #9f8a67;
+      --slot-dark: #121518;
+      --slot-edge: #4f4434;
+    }
+
     * {
       box-sizing: border-box;
     }
@@ -12,29 +27,45 @@
     body {
       margin: 0;
       min-height: 100vh;
-      font-family: "Arial", "Microsoft YaHei", sans-serif;
+      font-family: "Bahnschrift", "DIN Alternate", "Segoe UI", "Microsoft YaHei UI", sans-serif;
       background:
-        radial-gradient(circle at top, rgba(255, 180, 80, 0.08), transparent 35%),
-        linear-gradient(180deg, #1c1f24 0%, #111317 100%);
-      color: #e7dcc3;
+        radial-gradient(circle at top, rgba(244, 182, 78, 0.15), transparent 30%),
+        repeating-linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0.018) 0,
+          rgba(255, 255, 255, 0.018) 1px,
+          transparent 1px,
+          transparent 72px
+        ),
+        linear-gradient(180deg, #20252b 0%, #0d1014 100%);
+      color: var(--text-main);
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 24px;
+      letter-spacing: 0.03em;
     }
 
     .panel {
       width: 100%;
       max-width: 760px;
       background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(0, 0, 0, 0.15)),
-        linear-gradient(135deg, #4e4537, #2e2a24 45%, #1f1c18);
-      border: 2px solid #8c7550;
-      border-radius: 16px;
+        linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(0, 0, 0, 0.16)),
+        repeating-linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0.025) 0,
+          rgba(255, 255, 255, 0.025) 2px,
+          transparent 2px,
+          transparent 68px
+        ),
+        linear-gradient(145deg, #4b4438 0%, #2a2f34 38%, #171b1f 100%);
+      border: 1px solid var(--metal-2);
+      border-radius: 18px;
       box-shadow:
-        0 0 0 2px rgba(255, 194, 102, 0.08) inset,
-        0 16px 40px rgba(0, 0, 0, 0.45),
-        0 0 30px rgba(255, 170, 60, 0.08);
+        0 0 0 2px rgba(11, 13, 15, 0.75) inset,
+        0 0 0 4px rgba(192, 153, 86, 0.12) inset,
+        0 24px 52px rgba(0, 0, 0, 0.52),
+        0 0 32px rgba(214, 159, 69, 0.08);
       overflow: hidden;
       position: relative;
     }
@@ -43,13 +74,16 @@
     .panel::after {
       content: "";
       position: absolute;
-      width: 18px;
-      height: 18px;
+      width: 20px;
+      height: 20px;
       border-radius: 50%;
-      background: radial-gradient(circle at 35% 35%, #c8b08a, #6a583e 65%, #403426);
+      background:
+        radial-gradient(circle at 35% 35%, #f4ead4 0, #99815b 32%, #4e402e 66%, #211a13 100%);
       border: 1px solid rgba(0, 0, 0, 0.4);
       top: 14px;
-      box-shadow: 0 1px 2px rgba(255, 255, 255, 0.08) inset;
+      box-shadow:
+        0 1px 2px rgba(255, 255, 255, 0.08) inset,
+        0 1px 8px rgba(0, 0, 0, 0.35);
     }
 
     .panel::before {
@@ -61,61 +95,130 @@
     }
 
     .header {
-      padding: 26px 28px 18px;
-      border-bottom: 1px solid rgba(214, 175, 104, 0.28);
-      background: linear-gradient(180deg, rgba(255, 210, 120, 0.08), rgba(0, 0, 0, 0.05));
+      padding: 28px 28px 22px;
+      border-bottom: 1px solid rgba(214, 175, 104, 0.3);
+      background:
+        linear-gradient(180deg, rgba(245, 200, 110, 0.11), rgba(0, 0, 0, 0.08)),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03), transparent 45%, rgba(255, 255, 255, 0.02));
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        repeating-linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0.025) 0,
+          rgba(255, 255, 255, 0.025) 1px,
+          transparent 1px,
+          transparent 48px
+        );
+      opacity: 0.65;
+      pointer-events: none;
+    }
+
+    .header::after {
+      content: "";
+      position: absolute;
+      left: 26px;
+      right: 26px;
+      bottom: 8px;
+      height: 5px;
+      border-radius: 999px;
+      background:
+        linear-gradient(90deg, transparent 0, rgba(211, 155, 67, 0.95) 18%, rgba(248, 219, 161, 0.95) 50%, rgba(211, 155, 67, 0.95) 82%, transparent 100%);
+      box-shadow: 0 0 10px rgba(211, 155, 67, 0.22);
     }
 
     .title {
       margin: 0;
       text-align: center;
-      font-size: 30px;
-      letter-spacing: 3px;
-      color: #f0d8a8;
-      text-shadow: 0 0 10px rgba(255, 190, 80, 0.18);
+      position: relative;
+      z-index: 1;
+      font-family: "Agency FB", "Bahnschrift SemiCondensed", "Arial Narrow", "Microsoft YaHei UI", sans-serif;
+      font-size: 36px;
+      font-weight: 700;
+      letter-spacing: 0.28em;
+      color: #f2dfb7;
+      text-shadow:
+        0 0 12px rgba(255, 190, 80, 0.15),
+        0 1px 0 rgba(0, 0, 0, 0.4);
     }
 
     .subtitle {
       margin: 10px 0 0;
       text-align: center;
-      font-size: 13px;
-      color: #bda47a;
-      letter-spacing: 1px;
+      position: relative;
+      z-index: 1;
+      font-family: "Consolas", "Lucida Console", "Microsoft YaHei UI", monospace;
+      font-size: 12px;
+      color: #baa37b;
+      letter-spacing: 0.22em;
     }
 
     .body {
       padding: 26px 28px 28px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.015), transparent 24%),
+        linear-gradient(180deg, rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.03));
     }
 
     .row {
       display: grid;
-      grid-template-columns: 90px 1fr;
+      grid-template-columns: 116px 1fr;
       gap: 14px;
       align-items: center;
-      margin-bottom: 18px;
+      margin-bottom: 16px;
+      padding: 12px;
+      border: 1px solid rgba(167, 133, 82, 0.2);
+      border-radius: 14px;
+      background:
+        linear-gradient(90deg, rgba(211, 155, 67, 0.05), transparent 28%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.015), rgba(0, 0, 0, 0.08));
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.04) inset,
+        0 -1px 0 rgba(0, 0, 0, 0.18) inset;
     }
 
     .label {
-      font-weight: bold;
-      color: #e8d3a7;
-      letter-spacing: 1px;
+      font-family: "Consolas", "Lucida Console", "Microsoft YaHei UI", monospace;
+      font-size: 13px;
+      font-weight: 700;
+      color: #eddab0;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      padding: 11px 12px;
+      border: 1px solid rgba(188, 151, 94, 0.25);
+      border-radius: 10px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(0, 0, 0, 0.18)),
+        linear-gradient(135deg, rgba(81, 67, 47, 0.95), rgba(31, 34, 38, 0.95));
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.04) inset,
+        0 0 0 1px rgba(0, 0, 0, 0.25) inset;
     }
 
     .control,
     .result-box {
       width: 100%;
-      border: 1px solid #826a45;
-      border-radius: 10px;
+      border: 1px solid var(--slot-edge);
+      border-radius: 8px;
       background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(0, 0, 0, 0.12)),
-        #1a1a1a;
+        linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(0, 0, 0, 0.18)),
+        linear-gradient(135deg, #1b2024, #111417 58%, #0c0f12);
       color: #f3ead7;
-      padding: 12px 14px;
-      font-size: 16px;
+      padding: 13px 14px;
+      font-family: "Consolas", "Lucida Console", "Microsoft YaHei UI", monospace;
+      font-size: 15px;
+      line-height: 1.5;
       outline: none;
       box-shadow:
         0 0 0 1px rgba(255, 205, 120, 0.05) inset,
-        0 2px 8px rgba(0, 0, 0, 0.25) inset;
+        0 2px 10px rgba(0, 0, 0, 0.3) inset,
+        0 1px 0 rgba(255, 255, 255, 0.03);
     }
 
     .control:focus,
@@ -123,16 +226,142 @@
       border-color: #c69b59;
       box-shadow:
         0 0 0 1px rgba(255, 205, 120, 0.12) inset,
-        0 0 0 3px rgba(198, 155, 89, 0.12);
+        0 0 0 3px rgba(198, 155, 89, 0.12),
+        0 0 18px rgba(211, 155, 67, 0.14);
     }
 
-    select.control {
+    .custom-select {
+      position: relative;
+      width: 100%;
+    }
+
+    .native-select {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .custom-select__trigger {
+      position: relative;
       cursor: pointer;
+      text-align: left;
+      padding-right: 54px;
+    }
+
+    .custom-select__trigger::before {
+      content: "";
+      position: absolute;
+      top: 9px;
+      bottom: 9px;
+      right: 42px;
+      width: 1px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(211, 155, 67, 0.4), rgba(0, 0, 0, 0.25));
+    }
+
+    .custom-select__trigger::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      right: 18px;
+      width: 11px;
+      height: 11px;
+      border-right: 2px solid #d7b06b;
+      border-bottom: 2px solid #d7b06b;
+      transform: translateY(-65%) rotate(45deg);
+      transition: transform 0.16s ease, filter 0.16s ease;
+    }
+
+    .custom-select.is-open .custom-select__trigger {
+      border-color: #d3a55d;
+      box-shadow:
+        0 0 0 1px rgba(255, 205, 120, 0.12) inset,
+        0 0 0 3px rgba(198, 155, 89, 0.12),
+        0 0 18px rgba(211, 155, 67, 0.14);
+    }
+
+    .custom-select.is-open .custom-select__trigger::after {
+      transform: translateY(-30%) rotate(-135deg);
+      filter: brightness(1.1);
+    }
+
+    .custom-select__menu {
+      position: absolute;
+      top: calc(100% + 10px);
+      left: 0;
+      right: 0;
+      z-index: 20;
+      padding: 8px;
+      border: 1px solid rgba(200, 156, 84, 0.52);
+      border-radius: 12px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(0, 0, 0, 0.16)),
+        repeating-linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0.02) 0,
+          rgba(255, 255, 255, 0.02) 1px,
+          transparent 1px,
+          transparent 40px
+        ),
+        linear-gradient(180deg, #20252a 0%, #0d1115 100%);
+      box-shadow:
+        0 16px 30px rgba(0, 0, 0, 0.45),
+        0 0 0 1px rgba(255, 214, 142, 0.08) inset;
+    }
+
+    .custom-select__menu[hidden] {
+      display: none;
+    }
+
+    .custom-select__option {
+      width: 100%;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      background:
+        linear-gradient(90deg, rgba(211, 155, 67, 0.08), transparent 58%),
+        rgba(12, 16, 20, 0.76);
+      color: #ead8b4;
+      padding: 11px 14px;
+      font-family: "Consolas", "Lucida Console", "Microsoft YaHei UI", monospace;
+      font-size: 15px;
+      line-height: 1.4;
+      text-align: left;
+      cursor: pointer;
+      transition: border-color 0.12s ease, background-color 0.12s ease, transform 0.12s ease;
+    }
+
+    .custom-select__option + .custom-select__option {
+      margin-top: 6px;
+    }
+
+    .custom-select__option:hover,
+    .custom-select__option:focus-visible {
+      border-color: rgba(211, 155, 67, 0.55);
+      background:
+        linear-gradient(90deg, rgba(211, 155, 67, 0.18), rgba(255, 231, 185, 0.05) 68%),
+        rgba(22, 27, 31, 0.94);
+      outline: none;
+      transform: translateX(2px);
+    }
+
+    .custom-select__option.is-selected {
+      border-color: rgba(226, 196, 142, 0.48);
+      background:
+        linear-gradient(90deg, rgba(211, 155, 67, 0.28), rgba(255, 238, 205, 0.08) 74%),
+        rgba(28, 34, 39, 0.96);
+      color: #fff0cf;
+      box-shadow: 0 0 0 1px rgba(255, 214, 142, 0.08) inset;
     }
 
     .result-box {
-      min-height: 160px;
+      min-height: 172px;
       resize: vertical;
+    }
+
+    .control::placeholder,
+    .result-box::placeholder {
+      color: #7d7568;
     }
 
     .hint {
@@ -148,20 +377,29 @@
 
     .run-btn {
       width: 100%;
-      border: 1px solid #b48a45;
-      border-radius: 12px;
-      padding: 14px 18px;
+      border: 1px solid #c49853;
+      border-radius: 10px;
+      padding: 15px 18px;
+      font-family: "Bahnschrift SemiBold", "DIN Alternate", "Segoe UI", "Microsoft YaHei UI", sans-serif;
       font-size: 17px;
-      font-weight: bold;
-      letter-spacing: 2px;
-      color: #2a1f12;
+      font-weight: 700;
+      letter-spacing: 0.24em;
+      color: #24170c;
       cursor: pointer;
       background:
-        linear-gradient(180deg, #f0cf91 0%, #c99849 48%, #9a6f2f 100%);
+        repeating-linear-gradient(
+          -45deg,
+          rgba(255, 255, 255, 0.16) 0,
+          rgba(255, 255, 255, 0.16) 8px,
+          rgba(255, 255, 255, 0.04) 8px,
+          rgba(255, 255, 255, 0.04) 16px
+        ),
+        linear-gradient(180deg, #f3d797 0%, #cb9243 48%, #8e5a21 100%);
       box-shadow:
-        0 3px 0 #5a3d18,
-        0 8px 20px rgba(0, 0, 0, 0.28),
-        0 1px 0 rgba(255, 255, 255, 0.28) inset;
+        0 4px 0 #4f3112,
+        0 14px 24px rgba(0, 0, 0, 0.3),
+        0 1px 0 rgba(255, 255, 255, 0.3) inset,
+        0 0 0 1px rgba(64, 38, 10, 0.28) inset;
       transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.15s ease, opacity 0.15s ease;
     }
 
@@ -172,9 +410,10 @@
     .run-btn:active {
       transform: translateY(3px);
       box-shadow:
-        0 1px 0 #5a3d18,
+        0 1px 0 #4f3112,
         0 4px 10px rgba(0, 0, 0, 0.25),
-        0 1px 0 rgba(255, 255, 255, 0.2) inset;
+        0 1px 0 rgba(255, 255, 255, 0.2) inset,
+        0 0 0 1px rgba(64, 38, 10, 0.24) inset;
     }
 
     .run-btn:disabled {
@@ -186,15 +425,37 @@
     .footer-note {
       margin-top: 14px;
       text-align: center;
-      font-size: 12px;
-      color: #9e8863;
-      letter-spacing: 1px;
+      font-family: "Consolas", "Lucida Console", "Microsoft YaHei UI", monospace;
+      font-size: 11px;
+      color: #a38c66;
+      letter-spacing: 0.16em;
+    }
+
+    .footer-link {
+      margin-top: 6px;
+      text-align: center;
+      font-size: 11px;
+      color: #887355;
+      letter-spacing: 0.12em;
+    }
+
+    .footer-link a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(143, 122, 88, 0.45);
+      transition: color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .footer-link a:hover {
+      color: #cdb27e;
+      border-bottom-color: rgba(205, 178, 126, 0.8);
     }
 
     @media (max-width: 640px) {
       .row {
         grid-template-columns: 1fr;
         gap: 8px;
+        padding: 10px;
       }
 
       .label {
@@ -202,7 +463,12 @@
       }
 
       .title {
-        font-size: 24px;
+        font-size: 28px;
+        letter-spacing: 0.18em;
+      }
+
+      .subtitle {
+        letter-spacing: 0.12em;
       }
 
       .body,
@@ -213,6 +479,14 @@
 
       .hint {
         margin-left: 0;
+      }
+
+      .run-btn {
+        letter-spacing: 0.14em;
+      }
+
+      .custom-select__menu {
+        top: calc(100% + 8px);
       }
     }
   </style>
@@ -238,13 +512,26 @@
 
       <div class="row">
         <div class="label">设定</div>
-        <select id="setting" class="control">
+        <div class="custom-select" id="settingSelect">
+          <select id="setting" class="native-select">
           <option value="粗加工">粗加工</option>
           <option value="半粗加工">半粗加工</option>
-          <option value="1:1">1:1</option>
+            <option value="1:1" selected>1:1</option>
           <option value="精加工">精加工</option>
           <option value="超精加工">超精加工</option>
-        </select>
+          </select>
+          <button
+            id="settingTrigger"
+            class="control custom-select__trigger"
+            type="button"
+            aria-haspopup="listbox"
+            aria-expanded="false"
+            aria-controls="settingMenu"
+          >
+            <span id="settingValue">1:1</span>
+          </button>
+          <div id="settingMenu" class="custom-select__menu" role="listbox" hidden></div>
+        </div>
       </div>
 
       <div class="row">
@@ -264,6 +551,9 @@
       <div class="footer-note">
         WARNING: 未经许可请勿投入活体进行测试
       </div>
+      <div class="footer-link">
+        <a href="https://scp-wiki-cn.wikidot.com/scp-914" target="_blank" rel="noopener noreferrer">背景故事</a>
+      </div>
     </div>
   </div>
 
@@ -272,8 +562,135 @@
 
     const inputElement = document.getElementById("inputText");
     const settingElement = document.getElementById("setting");
+    const settingSelectElement = document.getElementById("settingSelect");
+    const settingTriggerElement = document.getElementById("settingTrigger");
+    const settingValueElement = document.getElementById("settingValue");
+    const settingMenuElement = document.getElementById("settingMenu");
     const outputElement = document.getElementById("outputText");
     const runButton = document.getElementById("runBtn");
+
+    function getSettingButtons() {
+      return Array.from(settingMenuElement.querySelectorAll(".custom-select__option"));
+    }
+
+    function closeSettingMenu() {
+      settingSelectElement.classList.remove("is-open");
+      settingTriggerElement.setAttribute("aria-expanded", "false");
+      settingMenuElement.hidden = true;
+    }
+
+    function syncSettingDisplay() {
+      const selectedOption = settingElement.options[settingElement.selectedIndex];
+      const selectedValue = selectedOption?.value || "";
+
+      settingValueElement.textContent = selectedOption?.textContent?.trim() || selectedValue;
+
+      getSettingButtons().forEach((button) => {
+        const isSelected = button.dataset.value === selectedValue;
+        button.classList.toggle("is-selected", isSelected);
+        button.setAttribute("aria-selected", String(isSelected));
+      });
+    }
+
+    function focusSettingOption(step) {
+      const buttons = getSettingButtons();
+
+      if (!buttons.length) {
+        return;
+      }
+
+      const activeIndex = buttons.findIndex((button) => button === document.activeElement);
+      const selectedIndex = buttons.findIndex((button) => button.classList.contains("is-selected"));
+      const baseIndex = activeIndex >= 0 ? activeIndex : selectedIndex >= 0 ? selectedIndex : 0;
+      const nextIndex = (baseIndex + step + buttons.length) % buttons.length;
+      buttons[nextIndex].focus();
+    }
+
+    function openSettingMenu() {
+      settingSelectElement.classList.add("is-open");
+      settingTriggerElement.setAttribute("aria-expanded", "true");
+      settingMenuElement.hidden = false;
+    }
+
+    function buildSettingMenu() {
+      settingMenuElement.innerHTML = "";
+
+      Array.from(settingElement.options).forEach((option) => {
+        const optionButton = document.createElement("button");
+        optionButton.type = "button";
+        optionButton.className = "custom-select__option";
+        optionButton.role = "option";
+        optionButton.dataset.value = option.value;
+        optionButton.textContent = option.textContent.trim();
+
+        optionButton.addEventListener("click", () => {
+          settingElement.value = option.value;
+          syncSettingDisplay();
+          closeSettingMenu();
+          settingTriggerElement.focus();
+        });
+
+        optionButton.addEventListener("keydown", (event) => {
+          if (event.key === "ArrowDown") {
+            event.preventDefault();
+            focusSettingOption(1);
+          } else if (event.key === "ArrowUp") {
+            event.preventDefault();
+            focusSettingOption(-1);
+          } else if (event.key === "Escape") {
+            event.preventDefault();
+            closeSettingMenu();
+            settingTriggerElement.focus();
+          } else if (event.key === "Tab") {
+            closeSettingMenu();
+          }
+        });
+
+        settingMenuElement.appendChild(optionButton);
+      });
+
+      syncSettingDisplay();
+    }
+
+    settingTriggerElement.addEventListener("click", () => {
+      if (settingMenuElement.hidden) {
+        openSettingMenu();
+      } else {
+        closeSettingMenu();
+      }
+    });
+
+    settingTriggerElement.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+        event.preventDefault();
+        openSettingMenu();
+        focusSettingOption(event.key === "ArrowDown" ? 1 : -1);
+      } else if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        if (settingMenuElement.hidden) {
+          openSettingMenu();
+        } else {
+          closeSettingMenu();
+        }
+      } else if (event.key === "Escape") {
+        closeSettingMenu();
+      }
+    });
+
+    document.addEventListener("click", (event) => {
+      if (!settingSelectElement.contains(event.target)) {
+        closeSettingMenu();
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        closeSettingMenu();
+      }
+    });
+
+    settingElement.addEventListener("change", syncSettingDisplay);
+    buildSettingMenu();
 
     async function outputFunction(input, setting) {
       if (!input) {
